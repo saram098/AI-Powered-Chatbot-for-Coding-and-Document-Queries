@@ -21,4 +21,16 @@ First, clone the project repository and navigate into the project directory:
 git clone https://github.com/your-repository/AI-Powered-Chatbot-for-Coding-and-Document-Queries.git
 cd AI-Powered-Chatbot-for-Coding-and-Document-Queries
 ```
-###
+### 2. Install Dependencies
+Install the necessary packages by running:
+```bash
+pip install -r requirements.txt
+```
+This will install:
+
+FastAPI: Backend framework.
+Uvicorn: ASGI server for FastAPI.
+Streamlit: Interactive frontend.
+PyMuPDF: PDF handling.
+SpeechRecognition and pydub: Audio processing.
+Groq API: For using Groq hardware and models.
