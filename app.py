@@ -7,8 +7,14 @@ from fastapi import FastAPI, UploadFile, File, Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import json
+from dotenv import load_dotenv
 
-client = Groq(api_key="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")
+# Load environment variables from .env file
+load_dotenv()
+
+# Load environment variables
+API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=API_KEY)
 
 app = FastAPI()
 
@@ -31,7 +37,6 @@ def query_groq(messages):
         messages=messages,
         model="llama3-8b-8192",
     )
-    
     return chat_completion.choices[0].message.content
 
 def query_from_document(pdf_path, question):
@@ -81,13 +86,9 @@ async def text_query(query: TextQuery):
     chat_id = query.chat_id
     input_text = query.question
 
-    # Load chat history for the given user ID and chat ID
     chat_history = load_chat_history(user_id, chat_id)
-
-    # Prepare messages for Groq API with chat history
     messages = []
 
-    # Include previous chat history in the messages
     for entry in chat_history:
         messages.append({
             "role": "user",
@@ -98,19 +99,14 @@ async def text_query(query: TextQuery):
             "content": entry['response']
         })
 
-    # Add the new user input to the messages
     messages.append({
         "role": "user",
         "content": input_text
     })
 
-    # Get response from Groq API
     answer = query_groq(messages)
 
-    # Add user input and LLM result to history
     chat_history.append({'prompt': input_text, 'response': answer})
-
-    # Save chat history back to the JSON file
     save_chat_history(user_id, chat_id, chat_history)
 
     return {"answer": answer}
@@ -124,15 +120,10 @@ async def document_query(file: UploadFile = File(...), user_id: str = Form(...),
     try:
         answer = query_from_document(file_location, question)
     finally:
-        os.remove(file_location)  # Clean up the temporary file
+        os.remove(file_location)
 
-    # Load chat history for the given user ID and chat ID
     chat_history = load_chat_history(user_id, chat_id)
-
-    # Add user input and LLM result to history
     chat_history.append({'prompt': f"Document: {file.filename}, Question: {question}", 'response': answer})
-
-    # Save chat history back to the JSON file
     save_chat_history(user_id, chat_id, chat_history)
 
     return {"answer": answer}
@@ -145,21 +136,13 @@ async def audio_query(file: UploadFile = File(...), user_id: str = Form(...), ch
         f.write(file.file.read())
 
     try:
-        # Convert to WAV format
         audio = AudioSegment.from_file(file_location)
         audio.export(wav_location, format="wav")
 
-        # Transcribe the WAV audio
         transcribed_text = transcribe_audio(wav_location)
         messages = [
-            {
-                "role": "system",
-                "content": "You are a helpful assistant.",
-            },
-            {
-                "role": "user",
-                "content": transcribed_text
-            }
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": transcribed_text}
         ]
         answer = query_groq(messages)
     except sr.UnknownValueError:
@@ -167,22 +150,11 @@ async def audio_query(file: UploadFile = File(...), user_id: str = Form(...), ch
     except sr.RequestError as e:
         answer = f"Could not request results from the speech recognition service; {e}"
     finally:
-        try:
-            os.remove(file_location)  # Clean up the temporary file
-        except PermissionError:
-            pass  # Handle or log if the file is still in use
-        try:
-            os.remove(wav_location)  # Clean up the temporary WAV file
-        except PermissionError:
-            pass  # Handle or log if the file is still in use
+        os.remove(file_location)
+        os.remove(wav_location)
 
-    # Load chat history for the given user ID and chat ID
     chat_history = load_chat_history(user_id, chat_id)
-
-    # Add user input and LLM result to history
     chat_history.append({'prompt': "Audio file uploaded", 'response': answer})
-
-    # Save chat history back to the JSON file
     save_chat_history(user_id, chat_id, chat_history)
 
     return {"answer": answer}

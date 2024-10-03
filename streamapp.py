@@ -2,9 +2,13 @@ import streamlit as st
 import requests
 import json
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Constants for FastAPI endpoints
-BASE_URL = "http://localhost:8002"
+BASE_URL = os.getenv("BASE_URL")
 
 def save_chat_history(user_id, chat_id, history):
     user_folder = f'Data/{user_id}'
@@ -30,7 +34,6 @@ def main():
         st.session_state.chat_id = None
         st.session_state.chat_history = []
 
-    # Ask for User ID
     if st.session_state.user_id is None:
         user_id = st.text_input("Enter your User ID:")
         if st.button("Submit"):
@@ -42,15 +45,11 @@ def main():
     else:
         user_id = st.session_state.user_id
 
-        # Ensure user folder exists
         user_folder = f'Data/{user_id}'
         os.makedirs(user_folder, exist_ok=True)
 
-        # Sidebar with New Chat option and Past Chats dropdown
         with st.sidebar:
             st.write(f"User: {user_id}")
-
-            # Dropdown for Past Chats
             past_chats = [f for f in os.listdir(user_folder) if f.endswith('.json')]
             selected_chat = st.selectbox("Past Chats", options=["Select a chat"] + past_chats)
             if selected_chat != "Select a chat":
@@ -61,24 +60,20 @@ def main():
                 st.session_state.chat_id = None
                 st.session_state.chat_history = []
 
-        # Generate chat ID if not exists
         if st.session_state.chat_id is None:
             chat_id = f"chat_{len([f for f in os.listdir(user_folder) if f.endswith('.json')]) + 1}.json"
             st.session_state.chat_id = chat_id
         else:
             chat_id = st.session_state.chat_id
 
-        # Load chat history
         chat_history = st.session_state.chat_history
 
-        # Display chat history
         for entry in chat_history:
             with st.chat_message('user'):
                 st.markdown(entry['prompt'])
             with st.chat_message('assistant', avatar='✨'):
                 st.markdown(entry['response'])
 
-        # Input handling
         input_type = st.selectbox("Select input type", ["Text", "Document", "Audio"])
 
         if input_type == "Text":
@@ -106,21 +101,29 @@ def main():
                     data = {'user_id': user_id, 'chat_id': chat_id, 'question': question}
                     response = requests.post(f"{BASE_URL}/query_document", files=files, data=data)
                     answer = response.json().get("answer")
-
-                    st.session_state.chat_history.append({'prompt': f"Document: {uploaded_file.name}, Question: {question}", 'response': answer})
+                    
+                    st.session_state.chat_history.append({
+                        'prompt': f"Document: {uploaded_file.name}, Question: {question}",
+                        'response': answer
+                    })
                     save_chat_history(user_id, chat_id, st.session_state.chat_history)
+                    st.experimental_rerun()
 
         elif input_type == "Audio":
-            uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3"])
+            uploaded_audio = st.file_uploader("Upload an audio file", type=["mp3", "wav"])
             if st.button("Submit"):
-                if uploaded_file:
-                    files = {'file': uploaded_file.getvalue()}
+                if uploaded_audio:
+                    files = {'file': uploaded_audio.getvalue()}
                     data = {'user_id': user_id, 'chat_id': chat_id}
                     response = requests.post(f"{BASE_URL}/query_audio", files=files, data=data)
                     answer = response.json().get("answer")
 
-                    st.session_state.chat_history.append({'prompt': "Audio file uploaded", 'response': answer})
+                    st.session_state.chat_history.append({
+                        'prompt': "Audio file uploaded",
+                        'response': answer
+                    })
                     save_chat_history(user_id, chat_id, st.session_state.chat_history)
+                    st.experimental_rerun()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

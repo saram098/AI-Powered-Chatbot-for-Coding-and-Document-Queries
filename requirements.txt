@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+requests
+streamlit
+PyMuPDF
+speechrecognition
+pydub
+groq  # Add Groq package if it's not listed in PyPi
