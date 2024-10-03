@@ -28,9 +28,17 @@ pip install -r requirements.txt
 ```
 This will install:
 
-FastAPI: Backend framework.
-Uvicorn: ASGI server for FastAPI.
-Streamlit: Interactive frontend.
-PyMuPDF: PDF handling.
-SpeechRecognition and pydub: Audio processing.
-Groq API: For using Groq hardware and models.
+- FastAPI: Backend framework.
+- Uvicorn: ASGI server for FastAPI.
+- Streamlit: Interactive frontend.
+- PyMuPDF: PDF handling.
+- SpeechRecognition and pydub: Audio processing.
+- Groq API: For using Groq hardware and models.
+
+### 3. Set Up Environment Variables
+Create a ```.env``` file in the root directory to store sensitive information such as API keys and URLs. Use the following template for the ```.env``` file:
+```bash
+BASE_URL=http://127.0.0.1:8002
+GROQ_API_KEY=your_groq_api_key_here
+```
+
