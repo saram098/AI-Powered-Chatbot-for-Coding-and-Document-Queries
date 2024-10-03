@@ -20,3 +20,5 @@ First, clone the project repository and navigate into the project directory:
 ```bash
 git clone https://github.com/your-repository/AI-Powered-Chatbot-for-Coding-and-Document-Queries.git
 cd AI-Powered-Chatbot-for-Coding-and-Document-Queries
+```
+###
