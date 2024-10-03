@@ -7,4 +7,5 @@ streamlit
 PyMuPDF
 speechrecognition
 pydub
-groq  # Add Groq package if it's not listed in PyPi
+python-multipart
+groq # Add Groq package if it's not listed in PyPi
