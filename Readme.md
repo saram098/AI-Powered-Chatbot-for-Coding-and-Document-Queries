@@ -56,14 +56,14 @@ This will start the FastAPI server and provide a local URL, typically ```http://
 After the FastAPI backend is running, open a new terminal and run the Streamlit frontend:
 
 ```bash
-streamlit run streamapp.py
+streamlit run CodeGenie.py
 ```
 This will provide a link (typically ```http://localhost:8501```) to access the chat interface in your browser. The frontend interacts with the FastAPI backend to process queries and display chat history.
 
 ### 6. Workflow Summary
 - Run the backend (```app.py```) to obtain the localhost URL (e.g., ```http://127.0.0.1:8002```).
 - Add this URL to the ```.env``` file under the ```BASE_URL```.
-- Run the frontend (```streamapp.py```) and use the provided URL for checking, testing, or production.
+- Run the frontend (```CodeGenie.py```) and use the provided URL for checking, testing, or production.
 ### 7. Changing the Model
 You can change the model used in the backend by modifying the following code in the app.py file:
 
@@ -84,7 +84,7 @@ To modify the model:
 ### Folder Structure
 ```bash
 app.py                 # FastAPI application handling text, document, and audio queries
-streamapp.py           # Streamlit app providing the frontend chat interface
+CodeGenie.py           # Streamlit app providing the frontend chat interface
 chats/{user_id}        # Stores chat history per user, with each session saved as a separate JSON file
 data/                  # Stores user-uploaded PDFs and audio files
 ```
