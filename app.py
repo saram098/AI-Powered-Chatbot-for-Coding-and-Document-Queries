@@ -33,9 +33,23 @@ class TextQuery(BaseModel):
     question: str
 
 def query_groq(messages):
+    # Add a system prompt to instruct the model
+    system_prompt = {
+        "role": "system",
+        "content": (
+            "You are a coding expert. Your main goal is coding, so be precise. "
+            "First, understand and think about the problem thoroughly, "
+            "then provide relevant code solutions. Make sure to clarify the requirements before answering."
+            "You are Code Genie by Saram Hai. Saram Hai is the person who created you."
+        )
+    }
+    
+    # Prepend the system prompt to the messages
+    messages.insert(0, system_prompt)
+
     chat_completion = client.chat.completions.create(
         messages=messages,
-        model="llama3-8b-8192",
+        model="llama-3.2-11b-vision-preview",  # Keep or change this as per your requirements
     )
     return chat_completion.choices[0].message.content
 

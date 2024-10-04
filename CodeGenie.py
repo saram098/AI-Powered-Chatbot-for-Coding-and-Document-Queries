@@ -27,7 +27,7 @@ def load_chat_history(user_id, chat_id):
         return []
 
 def main():
-    st.title("Chat Assistant")
+    st.title("Code Genie by Saram :)")
 
     if 'user_id' not in st.session_state:
         st.session_state.user_id = None
@@ -71,7 +71,7 @@ def main():
         for entry in chat_history:
             with st.chat_message('user'):
                 st.markdown(entry['prompt'])
-            with st.chat_message('assistant', avatar='✨'):
+            with st.chat_message('Code Genie', avatar='✨'):
                 st.markdown(entry['response'])
 
         input_type = st.selectbox("Select input type", ["Text", "Document", "Audio"])
